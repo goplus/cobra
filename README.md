@@ -30,7 +30,7 @@ Create a file named `version_cmd.gox` with the following content:
 
 ```go
 run => {
-    echo "subcommand: version"
+	echo "command: version"
 }
 ```
 
@@ -41,6 +41,8 @@ gop mod tidy
 gop install .
 hellocli
 ```
+
+You may get the following output:
 
 ```sh
 Usage:
@@ -59,7 +61,7 @@ Use "hellocli [command] --help" for more information about a command.
 
 ## Command settings
 
-Continue to modify the `version` subcommand:
+Continue to modify the `version` command:
 
 ```go
 // short sets the short description shown in the 'help' output.
@@ -70,7 +72,7 @@ long `Version prints the build information for Go binary files.
 `
 
 run => {
-    echo "subcommand: version"
+	echo "command: version"
 }
 ```
 
@@ -84,6 +86,24 @@ var (
 )
 
 run => {
-    echo "subcommand: version", "verbose:", Verbose
+	echo "command: version", "verbose:", Verbose
+}
+```
+
+## Subcommand
+
+Create a file named `mod_cmd.gox` with the following content:
+
+```go
+run => {
+	help
+}
+```
+
+And create a file named `mod_init_cmd.gox` with the following content:
+
+```go
+run => {
+	echo "subcommand: mod init"
 }
 ```
