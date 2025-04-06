@@ -1,3 +1,8 @@
+var (
+    LLGo    bool `flag:"llgo, val: true, usage: use LLGo as underlying compiler"`
+    Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
+)
+
 short "initialize new module in current directory"
 
 long `Init initializes and writes a new go.mod file in the current directory, in
@@ -16,5 +21,5 @@ See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 `
 
 run => {
-    echo "call go mod init"
+    printf "call go mod init: llgo=%v, verbose=%v\n", LLGo, Verbose
 }

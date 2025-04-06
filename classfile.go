@@ -19,6 +19,7 @@ package cobra
 import (
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -96,11 +97,14 @@ func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 		me.MainEntry()
 	}
 	for _, cmd := range cmds {
-		reflect.ValueOf(cmd).Elem().Field(1).Set(reflect.ValueOf(app)) // (*command).App = app
+		v := reflect.ValueOf(cmd).Elem()
+		v.Field(1).Set(reflect.ValueOf(app)) // (*command).App = app
+		self := cmd.cobraCmd()
+		handleFlags(self, v)
 		fname := cmd.Classfname()
 		parent, name := parentAndCmdName(root, cmds, fname)
 		cmd.Main(name)
-		parent.AddCommand(cmd.cobraCmd())
+		parent.AddCommand(self)
 	}
 	root.Execute()
 }
@@ -118,6 +122,81 @@ func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra
 	}
 	log.Panicf("Command `%s %s`: parent command not found", subcmd, name)
 	return nil, ""
+}
+
+func handleFlags(self *cobra.Command, v reflect.Value) {
+	t := v.Type()
+	for i, n := 2, v.NumField(); i < n; i++ {
+		tfld := t.Field(i)
+		if flag := tfld.Tag.Get("flag"); flag != "" {
+			flags := self.Flags()
+			name, shorthand, val, usage := parseFlag(flag)
+			fld := v.Field(i)
+			p := fld.Addr().Interface()
+			switch fld.Kind() {
+			case reflect.Bool:
+				flags.BoolVarP(p.(*bool), name, shorthand, parseBool(val, name), usage)
+			case reflect.String:
+				flags.StringVarP(p.(*string), name, shorthand, val, usage)
+			case reflect.Int:
+				flags.IntVarP(p.(*int), name, shorthand, parseInt(val, name), usage)
+			case reflect.Float64:
+				flags.Float64VarP(p.(*float64), name, shorthand, parseFloat(val, name), usage)
+			default:
+				log.Panicf("unsupported flag type `%s` for field `%s`", tfld.Type, tfld.Name)
+			}
+		}
+	}
+}
+
+func parseFloat(val, name string) float64 {
+	if val == "" {
+		return 0
+	}
+	ret, e := strconv.ParseFloat(val, 64)
+	if e != nil {
+		log.Panicf("invalid value for flag `%s`: %v\n", name, val)
+	}
+	return ret
+}
+
+func parseInt(val, name string) int {
+	if val == "" {
+		return 0
+	}
+	ret, e := strconv.Atoi(val)
+	if e != nil {
+		log.Panicf("invalid value for flag `%s`: %v\n", name, val)
+	}
+	return ret
+}
+
+func parseBool(val, name string) bool {
+	switch val {
+	case "", "false":
+		return false
+	case "true":
+		return true
+	}
+	log.Panicf("invalid value for flag `%s`: %v\n", name, val)
+	return false
+}
+
+func parseFlag(flag string) (name, shorthand, val, usage string) {
+	const spaces = " \t"
+	parts := strings.SplitN(flag, ",", 4)
+	name = parts[0]
+	for i := 1; i < len(parts); i++ {
+		part := strings.TrimLeft(parts[i], spaces)
+		if strings.HasPrefix(part, "short:") {
+			shorthand = strings.TrimLeft(part[6:], spaces)
+		} else if strings.HasPrefix(part, "val:") {
+			val = strings.TrimLeft(part[4:], spaces)
+		} else if strings.HasPrefix(part, "usage:") {
+			usage = strings.TrimLeft(part[6:], spaces)
+		}
+	}
+	return
 }
 
 // -----------------------------------------------------------------------------

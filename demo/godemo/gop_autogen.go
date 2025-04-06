@@ -19,6 +19,8 @@ type mod struct {
 type mod_init struct {
 	cobra.Command
 	*App
+	LLGo    bool `flag:"llgo, val: true, usage: use LLGo as underlying compiler"`
+	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
 type version struct {
 	cobra.Command
@@ -55,13 +57,13 @@ See 'go help modules' for an overview of module functionality.
 func (this *mod) Classfname() string {
 	return "mod"
 }
-//line demo/godemo/mod_init_cmd.gox:1
+//line demo/godemo/mod_init_cmd.gox:6
 func (this *mod_init) Main(_gop_arg0 string) {
 //line demo/godemo/mod_cmd.gox:11:1
 	this.Command.Main(_gop_arg0)
-//line demo/godemo/mod_init_cmd.gox:1:1
+//line demo/godemo/mod_init_cmd.gox:6:1
 	this.Short("initialize new module in current directory")
-//line demo/godemo/mod_init_cmd.gox:3:1
+//line demo/godemo/mod_init_cmd.gox:8:1
 	this.Long(`Init initializes and writes a new go.mod file in the current directory, in
 effect creating a new module rooted at the current directory. The go.mod file
 must not already exist.
@@ -76,10 +78,10 @@ import module requirements from it.
 
 See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 `)
-//line demo/godemo/mod_init_cmd.gox:18:1
+//line demo/godemo/mod_init_cmd.gox:23:1
 	this.Run(func() {
-//line demo/godemo/mod_init_cmd.gox:19:1
-		fmt.Println("call go mod init")
+//line demo/godemo/mod_init_cmd.gox:24:1
+		this.Printf("call go mod init: llgo=%v, verbose=%v\n", this.LLGo, this.Verbose)
 	})
 }
 func (this *mod_init) Classfname() string {
@@ -87,7 +89,7 @@ func (this *mod_init) Classfname() string {
 }
 //line demo/godemo/version_cmd.gox:1
 func (this *version) Main(_gop_arg0 string) {
-//line demo/godemo/mod_init_cmd.gox:18:1
+//line demo/godemo/mod_init_cmd.gox:23:1
 	this.Command.Main(_gop_arg0)
 //line demo/godemo/version_cmd.gox:1:1
 	this.Short("print Go version")
