@@ -41,7 +41,7 @@ and downgrading of dependencies should be done using 'go get'.
 See 'go help modules' for an overview of module functionality.
 `)
 //line demo/godemo/mod_cmd.gox:11:1
-	this.Run(func() {
+	this.Run__0(func() {
 //line demo/godemo/mod_cmd.gox:12:1
 		this.Help()
 	})
@@ -71,9 +71,9 @@ import module requirements from it.
 See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 `)
 //line demo/godemo/mod_init_cmd.gox:23:1
-	this.Run(func() {
+	this.Run__1(func(args []string) {
 //line demo/godemo/mod_init_cmd.gox:24:1
-		this.Printf("call go mod init: llgo=%v, verbose=%v\n", this.LLGo, this.Verbose)
+		this.Printf("call go mod init %v: llgo=%v, verbose=%v\n", args, this.LLGo, this.Verbose)
 	})
 }
 func (this *mod_init) Classfname() string {
@@ -106,7 +106,7 @@ indented by a leading tab character.
 See also: go doc runtime/debug.BuildInfo.
 `)
 //line demo/godemo/version_cmd.gox:27:1
-	this.Run(func() {
+	this.Run__0(func() {
 //line demo/godemo/version_cmd.gox:28:1
 		fmt.Println("go1.0", "verbose:", this.Verbose)
 	})

@@ -63,9 +63,16 @@ func (p *Command) Long(l string) {
 }
 
 // Run sets the actual work function. Most commands will only implement this.
-func (p *Command) Run(fn func()) {
+func (p *Command) Run__0(fn func()) {
 	p.Command.Run = func(cmd *cobra.Command, args []string) {
 		fn()
+	}
+}
+
+// Run sets the actual work function. Most commands will only implement this.
+func (p *Command) Run__1(fn func(args []string)) {
+	p.Command.Run = func(cmd *cobra.Command, args []string) {
+		fn(args)
 	}
 }
 
