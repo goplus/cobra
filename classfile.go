@@ -193,17 +193,27 @@ func parseBool(val, name string) bool {
 
 func parseFlag(flag string) (name, shorthand, val, usage string) {
 	const spaces = " \t"
-	parts := strings.SplitN(flag, ",", 4)
-	name = parts[0]
-	for i := 1; i < len(parts); i++ {
-		part := strings.TrimLeft(parts[i], spaces)
-		if strings.HasPrefix(part, "short:") {
+	var first = true
+	var part, next string
+	for flag != "" {
+		pos := strings.IndexByte(flag, ',')
+		if pos < 0 {
+			part, next = flag, ""
+		} else {
+			part, next = flag[:pos], flag[pos+1:]
+		}
+		part := strings.TrimLeft(part, spaces)
+		if first {
+			name = part
+			first = false
+		} else if strings.HasPrefix(part, "short:") {
 			shorthand = strings.TrimLeft(part[6:], spaces)
 		} else if strings.HasPrefix(part, "val:") {
 			val = strings.TrimLeft(part[4:], spaces)
 		} else if strings.HasPrefix(part, "usage:") {
-			usage = strings.TrimLeft(part[6:], spaces)
+			usage = strings.TrimLeft(flag[len(flag)-len(part)-len(next)+5:], spaces)
 		}
+		flag = next
 	}
 	return
 }
