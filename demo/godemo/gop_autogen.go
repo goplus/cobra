@@ -22,10 +22,12 @@ type mod_init struct {
 type version struct {
 	cobra.Command
 	*App
+	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
 type App struct {
 	cobra.App
 }
+
 //line demo/godemo/mod_cmd.gox:1
 func (this *mod) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
@@ -48,6 +50,7 @@ See 'go help modules' for an overview of module functionality.
 func (this *mod) Classfname() string {
 	return "mod"
 }
+
 //line demo/godemo/mod_init_cmd.gox:6
 func (this *mod_init) Main(_gop_arg0 string) {
 //line demo/godemo/mod_cmd.gox:11:1
@@ -78,13 +81,14 @@ See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 func (this *mod_init) Classfname() string {
 	return "mod_init"
 }
-//line demo/godemo/version_cmd.gox:1
+
+//line demo/godemo/version_cmd.gox:5
 func (this *version) Main(_gop_arg0 string) {
 //line demo/godemo/mod_init_cmd.gox:23:1
 	this.Command.Main(_gop_arg0)
-//line demo/godemo/version_cmd.gox:1:1
+//line demo/godemo/version_cmd.gox:5:1
 	this.Short("print Go version")
-//line demo/godemo/version_cmd.gox:3:1
+//line demo/godemo/version_cmd.gox:7:1
 	this.Long(`Version prints the build information for Go binary files.
 
 Go version reports the Go version used to build each of the named files.
@@ -104,10 +108,10 @@ indented by a leading tab character.
 
 See also: go doc runtime/debug.BuildInfo.
 `)
-//line demo/godemo/version_cmd.gox:23:1
+//line demo/godemo/version_cmd.gox:27:1
 	this.Run(func() {
-//line demo/godemo/version_cmd.gox:24:1
-		fmt.Println("go1.0")
+//line demo/godemo/version_cmd.gox:28:1
+		fmt.Println("go1.0", "verbose:", this.Verbose)
 	})
 }
 func (this *version) Classfname() string {

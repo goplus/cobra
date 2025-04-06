@@ -9,3 +9,81 @@ cobra - A Commander for modern Go+ CLI interactions
 <!--
 [![Coverage Status](https://codecov.io/gh/goplus/cobra/branch/main/graph/badge.svg)](https://codecov.io/gh/goplus/cobra)
 -->
+
+The cobra classfile has the file suffix `_cmd.gox`.
+
+## How to use in Go+
+
+First let us initialize a `hellocli` project:
+
+```sh
+gop mod init hellocli
+```
+
+Then we have it reference the `cobra` classfile as the CLI framework:
+
+```sh
+gop get github.com/goplus/cobra@latest
+```
+
+Create a file named `version_cmd.gox` with the following content:
+
+```go
+run => {
+    echo "subcommand: version"
+}
+```
+
+Execute the following commands:
+
+```sh
+gop mod tidy
+gop install .
+hellocli
+```
+
+```sh
+Usage:
+  hellocli [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  version
+
+Flags:
+  -h, --help   help for hellocli
+
+Use "hellocli [command] --help" for more information about a command.
+```
+
+## Command settings
+
+Continue to modify the `version` subcommand:
+
+```go
+// short sets the short description shown in the 'help' output.
+short "print Go version"
+
+// long sets the long message shown in the 'help <this-command>' output.
+long `Version prints the build information for Go binary files.
+`
+
+run => {
+    echo "subcommand: version"
+}
+```
+
+## Command flags
+
+The `cobra` classfile uses tags of class fields to specify command flags.
+
+```go
+var (
+	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
+)
+
+run => {
+    echo "subcommand: version", "verbose:", Verbose
+}
+```
