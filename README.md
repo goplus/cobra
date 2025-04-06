@@ -82,7 +82,7 @@ The `cobra` classfile uses tags of class fields to specify command flags.
 
 ```go
 var (
-	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
+	Verbose bool `flag:"verbose, short: v, val: false, usage: print verbose information"`
 )
 
 run => {
