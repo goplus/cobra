@@ -17,7 +17,9 @@
 package cobra
 
 import (
+	"log"
 	"reflect"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -38,8 +40,8 @@ func (p *Command) cobraCmd() *cobra.Command {
 }
 
 // Main is required by Go+ compiler as the entry of a Cobra command.
-func (p *Command) Main(fname string) {
-	p.Command.Use = fname
+func (p *Command) Main(cmd string) {
+	p.Command.Use = cmd
 }
 
 // Use sets the one-line usage message.
@@ -90,12 +92,32 @@ type iCommandProto interface {
 // Gopt_App_Main is required by Go+ compiler as the entry of a Cobra project.
 func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 	root := app.initApp(app.Classprojname())
+	if me, ok := app.(interface{ MainEntry() }); ok {
+		me.MainEntry()
+	}
 	for _, cmd := range cmds {
 		reflect.ValueOf(cmd).Elem().Field(1).Set(reflect.ValueOf(app)) // (*command).App = app
-		cmd.Main(cmd.Classfname())
-		root.AddCommand(cmd.cobraCmd())
+		fname := cmd.Classfname()
+		parent, name := parentAndCmdName(root, cmds, fname)
+		cmd.Main(name)
+		parent.AddCommand(cmd.cobraCmd())
 	}
 	root.Execute()
+}
+
+func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
+	pos := strings.IndexByte(fname, '_')
+	if pos < 0 {
+		return &root.Command, fname
+	}
+	subcmd, name := fname[:pos], fname[pos+1:]
+	for _, v := range cmds {
+		if v.Classfname() == subcmd {
+			return v.cobraCmd(), name
+		}
+	}
+	log.Panicf("Command `%s %s`: parent command not found", subcmd, name)
+	return nil, ""
 }
 
 // -----------------------------------------------------------------------------
