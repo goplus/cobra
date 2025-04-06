@@ -18,6 +18,8 @@ package cobra
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
@@ -81,7 +83,6 @@ func (p *App) initApp(projname string) *Command {
 
 type iAppProto interface {
 	initApp(projname string) *Command
-	Classprojname() string
 }
 
 type iCommandProto interface {
@@ -92,7 +93,8 @@ type iCommandProto interface {
 
 // Gopt_App_Main is required by Go+ compiler as the entry of a Cobra project.
 func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
-	root := app.initApp(app.Classprojname())
+	projname := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
+	root := app.initApp(projname)
 	if me, ok := app.(interface{ MainEntry() }); ok {
 		me.MainEntry()
 	}

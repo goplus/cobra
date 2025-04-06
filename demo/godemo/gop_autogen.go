@@ -9,9 +9,6 @@ import (
 
 const _ = true
 
-type App struct {
-	cobra.App
-}
 type mod struct {
 	cobra.Command
 	*App
@@ -26,14 +23,8 @@ type version struct {
 	cobra.Command
 	*App
 }
-
-func (this *App) MainEntry() {
-}
-func (this *App) Classprojname() string {
-	return "godemo"
-}
-func (this *App) Main() {
-	cobra.Gopt_App_Main(this, new(mod), new(mod_init), new(version))
+type App struct {
+	cobra.App
 }
 //line demo/godemo/mod_cmd.gox:1
 func (this *mod) Main(_gop_arg0 string) {
@@ -122,7 +113,9 @@ See also: go doc runtime/debug.BuildInfo.
 func (this *version) Classfname() string {
 	return "version"
 }
+func (this *App) Main() {
+	cobra.Gopt_App_Main(this, new(mod), new(mod_init), new(version))
+}
 func main() {
-//line demo/godemo/version_cmd.gox:23:1
 	new(App).Main()
 }
