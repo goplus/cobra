@@ -12,6 +12,14 @@ const _ = true
 type App struct {
 	cobra.App
 }
+type mod struct {
+	cobra.Command
+	*App
+}
+type mod_init struct {
+	cobra.Command
+	*App
+}
 type version struct {
 	cobra.Command
 	*App
@@ -23,10 +31,63 @@ func (this *App) Classprojname() string {
 	return "godemo"
 }
 func (this *App) Main() {
-	cobra.Gopt_App_Main(this, new(version))
+	cobra.Gopt_App_Main(this, new(mod), new(mod_init), new(version))
+}
+//line demo/godemo/mod_cmd.gox:1
+func (this *mod) Main(_gop_arg0 string) {
+	this.Command.Main(_gop_arg0)
+//line demo/godemo/mod_cmd.gox:1:1
+	this.Short("module maintenance")
+//line demo/godemo/mod_cmd.gox:3:1
+	this.Long(`Go mod provides access to operations on modules.
+
+Note that support for modules is built into all the go commands,
+not just 'go mod'. For example, day-to-day adding, removing, upgrading,
+and downgrading of dependencies should be done using 'go get'.
+See 'go help modules' for an overview of module functionality.
+`)
+//line demo/godemo/mod_cmd.gox:11:1
+	this.Run(func() {
+//line demo/godemo/mod_cmd.gox:12:1
+		this.Help()
+	})
+}
+func (this *mod) Classfname() string {
+	return "mod"
+}
+//line demo/godemo/mod_init_cmd.gox:1
+func (this *mod_init) Main(_gop_arg0 string) {
+//line demo/godemo/mod_cmd.gox:11:1
+	this.Command.Main(_gop_arg0)
+//line demo/godemo/mod_init_cmd.gox:1:1
+	this.Short("initialize new module in current directory")
+//line demo/godemo/mod_init_cmd.gox:3:1
+	this.Long(`Init initializes and writes a new go.mod file in the current directory, in
+effect creating a new module rooted at the current directory. The go.mod file
+must not already exist.
+
+Init accepts one optional argument, the module path for the new module. If the
+module path argument is omitted, init will attempt to infer the module path
+using import comments in .go files, vendoring tool configuration files (like
+Gopkg.lock), and the current directory (if in GOPATH).
+
+If a configuration file for a vendoring tool is present, init will attempt to
+import module requirements from it.
+
+See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
+`)
+//line demo/godemo/mod_init_cmd.gox:18:1
+	this.Run(func() {
+//line demo/godemo/mod_init_cmd.gox:19:1
+		fmt.Println("call go mod init")
+	})
+}
+func (this *mod_init) Classfname() string {
+	return "mod_init"
 }
 //line demo/godemo/version_cmd.gox:1
 func (this *version) Main(_gop_arg0 string) {
+//line demo/godemo/mod_init_cmd.gox:18:1
 	this.Command.Main(_gop_arg0)
 //line demo/godemo/version_cmd.gox:1:1
 	this.Short("print Go version")
