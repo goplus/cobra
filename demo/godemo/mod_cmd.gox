@@ -9,5 +9,5 @@ See 'go help modules' for an overview of module functionality.
 `
 
 run => {
-    help
+	help
 }

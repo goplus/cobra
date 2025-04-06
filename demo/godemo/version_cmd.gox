@@ -1,3 +1,7 @@
+var (
+	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
+)
+
 short "print Go version"
 
 long `Version prints the build information for Go binary files.
@@ -21,5 +25,5 @@ See also: go doc runtime/debug.BuildInfo.
 `
 
 run => {
-    echo "go1.0"
+	echo "go1.0", "verbose:", Verbose
 }
