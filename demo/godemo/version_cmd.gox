@@ -1,5 +1,5 @@
 var (
-	Verbose bool
+	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 )
 
 short "print Go version"

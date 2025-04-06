@@ -27,7 +27,6 @@ type version struct {
 type App struct {
 	cobra.App
 }
-
 //line demo/godemo/mod_cmd.gox:1
 func (this *mod) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
@@ -50,7 +49,6 @@ See 'go help modules' for an overview of module functionality.
 func (this *mod) Classfname() string {
 	return "mod"
 }
-
 //line demo/godemo/mod_init_cmd.gox:6
 func (this *mod_init) Main(_gop_arg0 string) {
 //line demo/godemo/mod_cmd.gox:11:1
@@ -81,7 +79,6 @@ See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 func (this *mod_init) Classfname() string {
 	return "mod_init"
 }
-
 //line demo/godemo/version_cmd.gox:5
 func (this *version) Main(_gop_arg0 string) {
 //line demo/godemo/mod_init_cmd.gox:23:1
