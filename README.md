@@ -90,6 +90,16 @@ run => {
 }
 ```
 
+## Command args
+
+If a command has non-flag arguments, use `run args => { ... }` instead of `run => { ... }` to get non-flag arguments:
+
+```go
+run args => {
+	echo "version:", args
+}
+```
+
 ## Subcommand
 
 Create a file named `mod_cmd.gox` with the following content:
