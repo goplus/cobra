@@ -31,4 +31,14 @@ func TestParseFlag(t *testing.T) {
 	if name != "" || short != "" || val != "" || usage != "t,i,m,e,s" {
 		t.Fatal("parseFlag `,usage:t,i,m,e,s`:", name, short, val, usage)
 	}
+	name, short, val, usage = parseFlag("verbose")
+	if name != "verbose" || short != "" || val != "" || usage != "" {
+		t.Fatal("parseFlag `verbose`:", name, short, val, usage)
+	}
+	defer func() {
+		if e := recover(); e == nil {
+			t.Fatal("parseFlag: no error?")
+		}
+	}()
+	parseFlag("verbose, unknown:")
 }
