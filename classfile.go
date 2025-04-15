@@ -78,6 +78,10 @@ func (p *Command) Run__1(fn func(args []string)) {
 
 // -----------------------------------------------------------------------------
 
+var (
+	_ = (*Command).cobraCmd
+)
+
 // App is the project class of Cobra classfile.
 type App struct {
 	Command
@@ -107,7 +111,7 @@ func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 	}
 	for _, cmd := range cmds {
 		v := reflect.ValueOf(cmd).Elem()
-		v.Field(1).Set(reflect.ValueOf(app)) // (*command).App = app
+		initProj(v, app)
 		self := cmd.cobraCmd()
 		handleFlags(self, v)
 		fname := cmd.Classfname()
@@ -116,6 +120,10 @@ func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 		parent.AddCommand(self)
 	}
 	root.Execute()
+}
+
+func initProj(workRef reflect.Value, app any) {
+	workRef.Field(1).Set(reflect.ValueOf(app))
 }
 
 func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
