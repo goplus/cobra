@@ -76,7 +76,7 @@ and flags that are only available to that command.
 In the example above, 'port' is the flag.
 
 Flag functionality is provided by the [pflag
-library](https://github.com/spf13/pflag), a fork of the flag standard library
+library](https://pkg.go.dev/github.com/goplus/cobra/pflag), a fork of the flag standard library
 which maintains the same interface while adding POSIX compliance.
 
 # Installing
