@@ -62,6 +62,11 @@ func (p *Command) Long(l string) {
 	p.Command.Long = l
 }
 
+// FlagOff disables the flag parsing for this command.
+func (p *Command) FlagOff() {
+	p.Command.DisableFlagParsing = true
+}
+
 // Run sets the actual work function. Most commands will only implement this.
 func (p *Command) Run__0(fn func()) {
 	p.Command.Run = func(cmd *cobra.Command, args []string) {
@@ -111,7 +116,6 @@ func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 	}
 	for _, cmd := range cmds {
 		v := reflect.ValueOf(cmd).Elem()
-		initProj(v, app)
 		self := cmd.cobraCmd()
 		handleFlags(self, v)
 		fname := cmd.Classfname()
@@ -120,10 +124,6 @@ func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
 		parent.AddCommand(self)
 	}
 	root.Execute()
-}
-
-func initProj(workRef reflect.Value, app any) {
-	workRef.Field(1).Set(reflect.ValueOf(app))
 }
 
 func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
