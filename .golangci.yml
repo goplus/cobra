@@ -14,6 +14,8 @@
 
 run:
   deadline: 5m
+  skip-dirs:
+    - xcmd
 
 linters:
   disable-all: true
