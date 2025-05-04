@@ -9,6 +9,10 @@ import (
 
 const _ = true
 
+type backward struct {
+	xcmd.Command
+	*App
+}
 type mod struct {
 	xcmd.Command
 	*App
@@ -29,10 +33,25 @@ type App struct {
 }
 
 func (this *App) Main() {
-	_gop_obj0 := &mod{App: this}
-	_gop_obj1 := &mod_init{App: this}
-	_gop_obj2 := &version{App: this}
-	xcmd.Gopt_App_Main(this, _gop_obj0, _gop_obj1, _gop_obj2)
+	_gop_obj0 := &backward{App: this}
+	_gop_obj1 := &mod{App: this}
+	_gop_obj2 := &mod_init{App: this}
+	_gop_obj3 := &version{App: this}
+	xcmd.Gopt_App_Main(this, _gop_obj0, _gop_obj1, _gop_obj2, _gop_obj3)
+}
+//line xcmd/demo/godemo/backward_cmd.gox:1
+func (this *backward) Main(_gop_arg0 string) {
+	this.Command.Main(_gop_arg0)
+//line xcmd/demo/godemo/backward_cmd.gox:1:1
+	this.FlagOff()
+//line xcmd/demo/godemo/backward_cmd.gox:3:1
+	this.Run__1(func(args []string) {
+//line xcmd/demo/godemo/backward_cmd.gox:4:1
+		fmt.Println("args:", args)
+	})
+}
+func (this *backward) Classfname() string {
+	return "backward"
 }
 //line xcmd/demo/godemo/mod_cmd.gox:1
 func (this *mod) Main(_gop_arg0 string) {
