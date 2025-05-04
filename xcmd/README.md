@@ -1,7 +1,7 @@
 cobra xcmd - A Go+ class framework for modern CLI interactions
 =====
 
-[![Build Status](https://github.com/goplus/cobra/actions/workflows/go.yml/badge.svg)](https://github.com/goplus/cobra/actions/workflows/go.yml)
+[![Build Status](https://github.com/goplus/cobra/actions/workflows/test.yml/badge.svg)](https://github.com/goplus/cobra/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goplus/cobra)](https://goreportcard.com/report/github.com/goplus/cobra)
 [![GitHub release](https://img.shields.io/github/v/tag/goplus/cobra.svg?label=release)](https://github.com/goplus/cobra/releases)
 [![GoDoc](https://pkg.go.dev/badge/github.com/goplus/cobra.svg)](https://pkg.go.dev/github.com/goplus/cobra/xcmd)
