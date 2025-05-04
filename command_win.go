@@ -22,7 +22,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/inconshreveable/mousetrap"
+	"github.com/goplus/cobra/mousetrap"
 )
 
 var preExecHookFn = preExecHook
