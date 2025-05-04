@@ -29,6 +29,7 @@ jobs:
           -l apache
           -ignore '.github/**'
           -ignore 'mousetrap/**'
+          -ignore 'pflag/**'
           -check
           .
 
