@@ -1,5 +1,5 @@
 gop 1.2
 
-project _cmd.gox App github.com/goplus/cobra/xcmd
+project main_cmd.gox App github.com/goplus/cobra/xcmd
 
-class _cmd.gox Command
+class *_cmd.gox Command
