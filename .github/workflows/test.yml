@@ -28,6 +28,7 @@ jobs:
           -y '2013-2023'
           -l apache
           -ignore '.github/**'
+          -ignore 'mousetrap/**'
           -check
           .
 
