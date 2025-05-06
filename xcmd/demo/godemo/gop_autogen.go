@@ -139,6 +139,5 @@ func (this *version) Classfname() string {
 	return "version"
 }
 func main() {
-//line xcmd/demo/godemo/version_cmd.gox:27:1
 	new(App).Main()
 }
