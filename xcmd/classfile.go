@@ -219,7 +219,12 @@ func parseFlag(flag string) (name, shorthand, val, usage string) {
 		} else if strings.HasPrefix(part, "val:") {
 			val = strings.TrimLeft(part[4:], spaces)
 		} else if strings.HasPrefix(part, "usage:") {
-			usage = strings.TrimLeft(flag[len(flag)-len(part)-len(next)+5:], spaces)
+			if pos < 0 {
+				usage = part[6:]
+			} else {
+				usage = flag[len(flag)-len(part)-len(next)+5:]
+			}
+			usage = strings.TrimLeft(usage, spaces)
 			return
 		} else {
 			log.Panicf("invalid flag format `%s`", flag)

@@ -29,6 +29,10 @@ func TestParseFlag(t *testing.T) {
 	if name != "times" || short != "" || val != "3" || usage != "t,i,m,e,s" {
 		t.Fatal("parseFlag `times, val: 3, usage:t,i,m,e,s`:", name, short, val, usage)
 	}
+	name, short, val, usage = parseFlag("times, usage: print verbose information")
+	if name != "times" || short != "" || val != "" || usage != "print verbose information" {
+		t.Fatal("parseFlag `times, usage: print verbose information`:", name, short, val, usage)
+	}
 	name, short, val, usage = parseFlag(",usage:t,i,m,e,s")
 	if name != "" || short != "" || val != "" || usage != "t,i,m,e,s" {
 		t.Fatal("parseFlag `,usage:t,i,m,e,s`:", name, short, val, usage)
