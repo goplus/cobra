@@ -9,21 +9,21 @@ import (
 
 const _ = true
 
-type backward struct {
+type Cmd_backward struct {
 	xcmd.Command
 	*App
 }
-type mod struct {
+type Cmd_mod struct {
 	xcmd.Command
 	*App
 }
-type mod_init struct {
+type Cmd_mod_init struct {
 	xcmd.Command
 	*App
 	LLGo    bool `flag:"llgo, val: true, usage: use LLGo as underlying compiler"`
 	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
-type version struct {
+type Cmd_version struct {
 	xcmd.Command
 	*App
 	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
@@ -33,14 +33,14 @@ type App struct {
 }
 
 func (this *App) Main() {
-	_gop_obj0 := &backward{App: this}
-	_gop_obj1 := &mod{App: this}
-	_gop_obj2 := &mod_init{App: this}
-	_gop_obj3 := &version{App: this}
+	_gop_obj0 := &Cmd_backward{App: this}
+	_gop_obj1 := &Cmd_mod{App: this}
+	_gop_obj2 := &Cmd_mod_init{App: this}
+	_gop_obj3 := &Cmd_version{App: this}
 	xcmd.Gopt_App_Main(this, _gop_obj0, _gop_obj1, _gop_obj2, _gop_obj3)
 }
 //line xcmd/demo/godemo/backward_cmd.gox:1
-func (this *backward) Main(_gop_arg0 string) {
+func (this *Cmd_backward) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
 //line xcmd/demo/godemo/backward_cmd.gox:1:1
 	this.FlagOff()
@@ -50,11 +50,11 @@ func (this *backward) Main(_gop_arg0 string) {
 		fmt.Println("args:", args)
 	})
 }
-func (this *backward) Classfname() string {
+func (this *Cmd_backward) Classfname() string {
 	return "backward"
 }
 //line xcmd/demo/godemo/mod_cmd.gox:1
-func (this *mod) Main(_gop_arg0 string) {
+func (this *Cmd_mod) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
 //line xcmd/demo/godemo/mod_cmd.gox:1:1
 	this.Short("module maintenance")
@@ -72,11 +72,11 @@ See 'go help modules' for an overview of module functionality.
 		this.Help()
 	})
 }
-func (this *mod) Classfname() string {
+func (this *Cmd_mod) Classfname() string {
 	return "mod"
 }
 //line xcmd/demo/godemo/mod_init_cmd.gox:6
-func (this *mod_init) Main(_gop_arg0 string) {
+func (this *Cmd_mod_init) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
 //line xcmd/demo/godemo/mod_init_cmd.gox:6:1
 	this.Short("initialize new module in current directory")
@@ -101,11 +101,11 @@ See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 		this.Printf("call go mod init %v: llgo=%v, verbose=%v\n", args, this.LLGo, this.Verbose)
 	})
 }
-func (this *mod_init) Classfname() string {
+func (this *Cmd_mod_init) Classfname() string {
 	return "mod_init"
 }
 //line xcmd/demo/godemo/version_cmd.gox:5
-func (this *version) Main(_gop_arg0 string) {
+func (this *Cmd_version) Main(_gop_arg0 string) {
 	this.Command.Main(_gop_arg0)
 //line xcmd/demo/godemo/version_cmd.gox:5:1
 	this.Short("print Go version")
@@ -135,7 +135,7 @@ See also: go doc runtime/debug.BuildInfo.
 		fmt.Println("go1.0", "verbose:", this.Verbose)
 	})
 }
-func (this *version) Classfname() string {
+func (this *Cmd_version) Classfname() string {
 	return "version"
 }
 func main() {
