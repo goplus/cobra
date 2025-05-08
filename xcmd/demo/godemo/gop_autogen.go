@@ -11,32 +11,36 @@ const _ = true
 
 type Cmd_backward struct {
 	xcmd.Command
-	*App
+	*godemo
+}
+type godemo struct {
+	xcmd.App
 }
 type Cmd_mod struct {
 	xcmd.Command
-	*App
+	*godemo
 }
 type Cmd_mod_init struct {
 	xcmd.Command
-	*App
+	*godemo
 	LLGo    bool `flag:"llgo, val: true, usage: use LLGo as underlying compiler"`
 	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
 type Cmd_version struct {
 	xcmd.Command
-	*App
+	*godemo
 	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
-type App struct {
-	xcmd.App
+//line xcmd/demo/godemo/godemo_app.gox:1
+func (this *godemo) MainEntry() {
+//line xcmd/demo/godemo/godemo_app.gox:1:1
+	this.Short("godemo is a cobra xcmd demo")
 }
-
-func (this *App) Main() {
-	_gop_obj0 := &Cmd_backward{App: this}
-	_gop_obj1 := &Cmd_mod{App: this}
-	_gop_obj2 := &Cmd_mod_init{App: this}
-	_gop_obj3 := &Cmd_version{App: this}
+func (this *godemo) Main() {
+	_gop_obj0 := &Cmd_backward{godemo: this}
+	_gop_obj1 := &Cmd_mod{godemo: this}
+	_gop_obj2 := &Cmd_mod_init{godemo: this}
+	_gop_obj3 := &Cmd_version{godemo: this}
 	xcmd.Gopt_App_Main(this, _gop_obj0, _gop_obj1, _gop_obj2, _gop_obj3)
 }
 //line xcmd/demo/godemo/backward_cmd.gox:1
@@ -139,5 +143,5 @@ func (this *Cmd_version) Classfname() string {
 	return "version"
 }
 func main() {
-	new(App).Main()
+	new(godemo).Main()
 }
