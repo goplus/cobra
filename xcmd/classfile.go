@@ -31,6 +31,13 @@ const (
 	GopPackage = true
 )
 
+// Check is a helper function to check the error.
+func Check(err error) {
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
 // -----------------------------------------------------------------------------
 
 // Command is the worker class of Cobra classfile.
