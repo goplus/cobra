@@ -1967,7 +1967,7 @@ Global Flags:
 Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
   {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
 
-Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+Use "{{.CommandPath}} [command] -h" for more information about a command.{{end}}
 `
 
 // defaultUsageFunc is equivalent to executing defaultUsageTemplate. The two should be changed in sync.
