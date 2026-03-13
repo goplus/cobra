@@ -49,7 +49,7 @@ func (p *Command) cobraCmd() *cobra.Command {
 	return &p.Command
 }
 
-// Main is required by Go+ compiler as the entry of a Cobra command.
+// Main is required by XGo compiler as the entry of a Cobra command.
 func (p *Command) Main(cmd string) {
 	p.Command.Use = cmd
 }
@@ -114,8 +114,8 @@ type iCommandProto interface {
 	Classfname() string
 }
 
-// Gopt_App_Main is required by Go+ compiler as the entry of a Cobra project.
-func Gopt_App_Main(app iAppProto, cmds ...iCommandProto) {
+// XGot_App_Main is required by XGo compiler as the entry of a Cobra project.
+func XGot_App_Main(app iAppProto, cmds ...iCommandProto) {
 	projname := strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
 	root := app.initApp(projname)
 	if me, ok := app.(interface{ MainEntry() }); ok {

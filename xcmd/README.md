@@ -1,29 +1,29 @@
-cobra xcmd - A Go+ class framework for modern CLI interactions
+cobra xcmd - A XGo class framework for modern CLI interactions
 =====
 
 [![Build Status](https://github.com/goplus/cobra/actions/workflows/test.yml/badge.svg)](https://github.com/goplus/cobra/actions/workflows/test.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goplus/cobra)](https://goreportcard.com/report/github.com/goplus/cobra)
 [![GitHub release](https://img.shields.io/github/v/tag/goplus/cobra.svg?label=release)](https://github.com/goplus/cobra/releases)
 [![GoDoc](https://pkg.go.dev/badge/github.com/goplus/cobra.svg)](https://pkg.go.dev/github.com/goplus/cobra/xcmd)
-[![Language](https://img.shields.io/badge/language-Go+-blue.svg)](https://github.com/goplus/gop)
+[![Language](https://img.shields.io/badge/language-XGo-blue.svg)](https://github.com/goplus/xgo)
 <!--
 [![Coverage Status](https://codecov.io/gh/goplus/cobra/branch/main/graph/badge.svg)](https://codecov.io/gh/goplus/cobra)
 -->
 
 The `cobra xcmd` class framework has the file suffix `_cmd.gox`.
 
-## How to use in Go+
+## How to use in XGo
 
 First let us initialize a `hellocli` project:
 
 ```sh
-gop mod init hellocli
+xgo mod init hellocli
 ```
 
 Then we have it reference `cobra xcmd` as the CLI framework:
 
 ```sh
-gop get github.com/goplus/cobra@latest
+xgo get github.com/goplus/cobra@latest
 ```
 
 Create a file named `version_cmd.gox` with the following content:
@@ -37,8 +37,8 @@ run => {
 Execute the following commands:
 
 ```sh
-gop mod tidy
-gop install .
+xgo mod tidy
+xgo install .
 hellocli
 ```
 
