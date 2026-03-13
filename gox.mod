@@ -1,4 +1,4 @@
-gop 1.6
+xgo 1.6
 
 project *_app.gox App github.com/goplus/cobra/xcmd
 
