@@ -152,8 +152,11 @@ func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra
 
 func handleFlags(self *cobra.Command, v reflect.Value) {
 	t := v.Type()
-	for i, n := 2, v.NumField(); i < n; i++ {
+	for i, n := 1, v.NumField(); i < n; i++ {
 		tfld := t.Field(i)
+		if tfld.Anonymous || !tfld.IsExported() {
+			continue
+		}
 		if flag := tfld.Tag.Get("flag"); flag != "" {
 			flags := self.Flags()
 			name, shorthand, val, usage := parseFlag(flag)
