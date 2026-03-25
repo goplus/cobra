@@ -130,6 +130,8 @@ func XGot_App_Main(app iAppProto, cmds ...iCommandProto) {
 		cmd.Main(name)
 		parent.AddCommand(self)
 	}
+	v := reflect.ValueOf(app).Elem()
+	handleFlags(&root.Command, v)
 	root.Execute()
 }
 
