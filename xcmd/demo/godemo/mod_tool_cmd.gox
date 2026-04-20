@@ -1,0 +1,5 @@
+short "manage module tools"
+
+run => {
+	help
+}
