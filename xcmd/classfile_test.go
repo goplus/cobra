@@ -19,6 +19,7 @@ package xcmd
 import (
 	"bytes"
 	"log"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -70,59 +71,100 @@ func TestParentAndCmdName(t *testing.T) {
 
 	sandbox := &mockCmd{fname: "sandbox"}
 	sandboxTpl := &mockCmd{fname: "sandbox_template"}
-
 	cmds := []iCommandProto{sandbox, sandboxTpl}
 
-	// Two-level: "sandbox_list" → parent is sandbox, name is "list"
-	parent, name := parentAndCmdName(root, cmds, "sandbox_list")
-	if parent != sandbox.cobraCmd() || name != "list" {
-		t.Fatalf("sandbox_list: got parent=%p name=%q, want sandbox cmd", parent, name)
+	// rootParent is a sentinel resolved at runtime to &root.Command; table
+	// entries refer to it by comparing pointer identity in the assertion.
+	rootParent := &root.Command
+
+	tests := []struct {
+		name       string
+		fname      string
+		wantParent *cobra.Command
+		wantName   string
+		// wantWarn requires a warning log to be emitted; wantNoWarn asserts
+		// silence. Both default to false, which skips the log check.
+		wantWarn   bool
+		wantNoWarn bool
+	}{
+		{
+			name:       "two-level match",
+			fname:      "sandbox_list",
+			wantParent: sandbox.cobraCmd(),
+			wantName:   "list",
+			wantNoWarn: true,
+		},
+		{
+			name:       "three-level match",
+			fname:      "sandbox_template_list",
+			wantParent: sandboxTpl.cobraCmd(),
+			wantName:   "list",
+			wantNoWarn: true,
+		},
+		{
+			name:       "top-level no underscore",
+			fname:      "version",
+			wantParent: rootParent,
+			wantName:   "version",
+			wantNoWarn: true,
+		},
+		{
+			// Rightmost split "sandbox_templating" is not registered; the
+			// algorithm falls back to "sandbox" with the remainder as name.
+			name:       "intermediate fallback",
+			fname:      "sandbox_templating_list",
+			wantParent: sandbox.cobraCmd(),
+			wantName:   "templating_list",
+			wantNoWarn: true,
+		},
+		{
+			// Underscore-containing name with no matching parent falls back
+			// to root with the full fname; a warning surfaces the likely
+			// misregistration.
+			name:       "unmatched underscore name warns",
+			fname:      "unknown_sub_deep",
+			wantParent: rootParent,
+			wantName:   "unknown_sub_deep",
+			wantWarn:   true,
+		},
+		{
+			// Trailing underscore yields an empty name on the first split;
+			// that candidate must be skipped so the valid parent can match.
+			name:       "trailing underscore skips empty name",
+			fname:      "sandbox_",
+			wantParent: rootParent,
+			wantName:   "sandbox_",
+			wantWarn:   true,
+		},
 	}
 
-	// Three-level: "sandbox_template_list" → parent is sandbox_template, name is "list"
-	parent, name = parentAndCmdName(root, cmds, "sandbox_template_list")
-	if parent != sandboxTpl.cobraCmd() || name != "list" {
-		t.Fatalf("sandbox_template_list: got parent=%p name=%q, want sandbox_template cmd", parent, name)
-	}
-
-	// Top-level: "version" → parent is root, name is "version"
-	parent, name = parentAndCmdName(root, cmds, "version")
-	if parent != &root.Command || name != "version" {
-		t.Fatalf("version: got parent=%p name=%q, want root", parent, name)
-	}
-
-	// Intermediate fallback: "sandbox_templating_list" → rightmost split
-	// "sandbox_templating" is not registered, but fallback matches "sandbox"
-	// with the remainder "templating_list" as the command name.
-	parent, name = parentAndCmdName(root, cmds, "sandbox_templating_list")
-	if parent != sandbox.cobraCmd() || name != "templating_list" {
-		t.Fatalf("sandbox_templating_list: got parent=%p name=%q, want sandbox cmd with name=templating_list", parent, name)
-	}
-
-	// Fallback: "unknown_sub_deep" with no matching parent → root, full name.
-	// Also verifies that a warning is emitted for underscore-containing names
-	// that find no parent, surfacing likely misregistrations.
-	var logBuf bytes.Buffer
 	origOutput := log.Writer()
 	origFlags := log.Flags()
 	defer func() {
 		log.SetOutput(origOutput)
 		log.SetFlags(origFlags)
 	}()
-	log.SetOutput(&logBuf)
 	log.SetFlags(0)
-	parent, name = parentAndCmdName(root, cmds, "unknown_sub_deep")
-	if parent != &root.Command || name != "unknown_sub_deep" {
-		t.Fatalf("unknown_sub_deep: got parent=%p name=%q, want root with full name", parent, name)
-	}
-	if !strings.Contains(logBuf.String(), `"unknown_sub_deep"`) {
-		t.Fatalf("unknown_sub_deep: expected warning log, got %q", logBuf.String())
-	}
 
-	// Top-level with no underscore must not emit a warning.
-	logBuf.Reset()
-	parentAndCmdName(root, cmds, "version")
-	if logBuf.Len() != 0 {
-		t.Fatalf("version: expected no warning log, got %q", logBuf.String())
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var logBuf bytes.Buffer
+			log.SetOutput(&logBuf)
+
+			gotParent, gotName := parentAndCmdName(root, cmds, tc.fname)
+
+			if gotParent != tc.wantParent {
+				t.Fatalf("parent: got %p, want %p", gotParent, tc.wantParent)
+			}
+			if gotName != tc.wantName {
+				t.Fatalf("name: got %q, want %q", gotName, tc.wantName)
+			}
+			switch {
+			case tc.wantWarn && !strings.Contains(logBuf.String(), strconv.Quote(tc.fname)):
+				t.Fatalf("expected warning log mentioning %q, got %q", tc.fname, logBuf.String())
+			case tc.wantNoWarn && logBuf.Len() != 0:
+				t.Fatalf("expected no warning log, got %q", logBuf.String())
+			}
+		})
 	}
 }

@@ -149,6 +149,12 @@ func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra
 	for i := strings.LastIndexByte(fname, '_'); i >= 0; i = strings.LastIndexByte(fname[:i], '_') {
 		hasUnderscore = true
 		parent, name := fname[:i], fname[i+1:]
+		// Skip degenerate splits (e.g. trailing underscore yields empty name,
+		// consecutive underscores yield empty parent). Continue searching at
+		// the next underscore position so a valid parent can still match.
+		if parent == "" || name == "" {
+			continue
+		}
 		for _, v := range cmds {
 			if v.Classfname() == parent {
 				return v.cobraCmd(), name
