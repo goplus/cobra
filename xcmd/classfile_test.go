@@ -105,11 +105,13 @@ func TestParentAndCmdName(t *testing.T) {
 	var logBuf bytes.Buffer
 	origOutput := log.Writer()
 	origFlags := log.Flags()
+	defer func() {
+		log.SetOutput(origOutput)
+		log.SetFlags(origFlags)
+	}()
 	log.SetOutput(&logBuf)
 	log.SetFlags(0)
 	parent, name = parentAndCmdName(root, cmds, "unknown_sub_deep")
-	log.SetOutput(origOutput)
-	log.SetFlags(origFlags)
 	if parent != &root.Command || name != "unknown_sub_deep" {
 		t.Fatalf("unknown_sub_deep: got parent=%p name=%q, want root with full name", parent, name)
 	}
@@ -119,11 +121,7 @@ func TestParentAndCmdName(t *testing.T) {
 
 	// Top-level with no underscore must not emit a warning.
 	logBuf.Reset()
-	log.SetOutput(&logBuf)
-	log.SetFlags(0)
 	parentAndCmdName(root, cmds, "version")
-	log.SetOutput(origOutput)
-	log.SetFlags(origFlags)
 	if logBuf.Len() != 0 {
 		t.Fatalf("version: expected no warning log, got %q", logBuf.String())
 	}

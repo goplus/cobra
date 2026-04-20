@@ -122,7 +122,7 @@ run => {
 
 Subcommands can be nested to arbitrary depth. The file name convention uses underscores to separate levels. The framework resolves the parent command by scanning underscore positions in the file name from right to left, trying the longest possible parent first and falling back to shorter prefixes until a registered parent is found.
 
-The example below builds a `mod tool` command group with `list` and `add` subcommands. Because `mod tool` is a two-level path, both the top-level `mod` command file (from the earlier [Subcommand](#subcommand) section) and the intermediate `mod_tool_cmd.gox` must exist — otherwise `mod_tool_list_cmd.gox` would fall back to a root-level command named `mod_tool_list`.
+The example below builds a `mod tool` command group with `list` and `add` subcommands. Because `mod tool` is a two-level path, both the top-level `mod` command file (from the earlier [Subcommand](#subcommand) section) and the intermediate `mod_tool_cmd.gox` must exist — otherwise `mod_tool_list_cmd.gox` would fall back to the next longest matching parent (e.g. to `mod` as a root command named `tool_list`), or to a root-level command named `mod_tool_list` if no parent matches.
 
 Ensure `mod_cmd.gox` from the previous section already exists:
 
