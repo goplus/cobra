@@ -135,19 +135,24 @@ func XGot_App_Main(app iAppProto, cmds ...iCommandProto) {
 	root.Execute()
 }
 
+// parentAndCmdName resolves the parent command for a given classfile name by
+// scanning underscore positions from right to left. This allows nested
+// subcommands of arbitrary depth. For example, "sandbox_template_list" first
+// tries parent "sandbox_template" (name "list"), then falls back to "sandbox"
+// (name "template_list"). If no parent is found the command is attached to root.
 func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
-	pos := strings.IndexByte(fname, '_')
-	if pos < 0 {
-		return &root.Command, fname
-	}
-	subcmd, name := fname[:pos], fname[pos+1:]
-	for _, v := range cmds {
-		if v.Classfname() == subcmd {
-			return v.cobraCmd(), name
+	for i := len(fname) - 1; i >= 0; i-- {
+		if fname[i] != '_' {
+			continue
+		}
+		parent, name := fname[:i], fname[i+1:]
+		for _, v := range cmds {
+			if v.Classfname() == parent {
+				return v.cobraCmd(), name
+			}
 		}
 	}
-	log.Panicf("Command `%s %s`: parent command not found", subcmd, name)
-	return nil, ""
+	return &root.Command, fname
 }
 
 func handleFlags(self *cobra.Command, v reflect.Value) {

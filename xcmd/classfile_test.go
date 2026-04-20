@@ -18,6 +18,8 @@ package xcmd
 
 import (
 	"testing"
+
+	"github.com/goplus/cobra"
 )
 
 func TestParseFlag(t *testing.T) {
@@ -47,4 +49,48 @@ func TestParseFlag(t *testing.T) {
 		}
 	}()
 	parseFlag("verbose, unknown:")
+}
+
+// mockCmd implements iCommandProto for testing parentAndCmdName.
+type mockCmd struct {
+	cmd   cobra.Command
+	fname string
+}
+
+func (m *mockCmd) cobraCmd() *cobra.Command { return &m.cmd }
+func (m *mockCmd) Main(name string)         { m.cmd.Use = name }
+func (m *mockCmd) Classfname() string       { return m.fname }
+
+func TestParentAndCmdName(t *testing.T) {
+	root := &Command{}
+	root.Use("app")
+
+	sandbox := &mockCmd{fname: "sandbox"}
+	sandboxTpl := &mockCmd{fname: "sandbox_template"}
+
+	cmds := []iCommandProto{sandbox, sandboxTpl}
+
+	// Two-level: "sandbox_list" → parent is sandbox, name is "list"
+	parent, name := parentAndCmdName(root, cmds, "sandbox_list")
+	if parent != sandbox.cobraCmd() || name != "list" {
+		t.Fatalf("sandbox_list: got parent=%p name=%q, want sandbox cmd", parent, name)
+	}
+
+	// Three-level: "sandbox_template_list" → parent is sandbox_template, name is "list"
+	parent, name = parentAndCmdName(root, cmds, "sandbox_template_list")
+	if parent != sandboxTpl.cobraCmd() || name != "list" {
+		t.Fatalf("sandbox_template_list: got parent=%p name=%q, want sandbox_template cmd", parent, name)
+	}
+
+	// Top-level: "version" → parent is root, name is "version"
+	parent, name = parentAndCmdName(root, cmds, "version")
+	if parent != &root.Command || name != "version" {
+		t.Fatalf("version: got parent=%p name=%q, want root", parent, name)
+	}
+
+	// Fallback: "unknown_sub_deep" with no matching parent → root, full name
+	parent, name = parentAndCmdName(root, cmds, "unknown_sub_deep")
+	if parent != &root.Command || name != "unknown_sub_deep" {
+		t.Fatalf("unknown_sub_deep: got parent=%p name=%q, want root with full name", parent, name)
+	}
 }
