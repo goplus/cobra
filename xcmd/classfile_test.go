@@ -17,6 +17,9 @@
 package xcmd
 
 import (
+	"bytes"
+	"log"
+	"strings"
 	"testing"
 
 	"github.com/goplus/cobra"
@@ -88,9 +91,40 @@ func TestParentAndCmdName(t *testing.T) {
 		t.Fatalf("version: got parent=%p name=%q, want root", parent, name)
 	}
 
-	// Fallback: "unknown_sub_deep" with no matching parent → root, full name
+	// Intermediate fallback: "sandbox_templating_list" → rightmost split
+	// "sandbox_templating" is not registered, but fallback matches "sandbox"
+	// with the remainder "templating_list" as the command name.
+	parent, name = parentAndCmdName(root, cmds, "sandbox_templating_list")
+	if parent != sandbox.cobraCmd() || name != "templating_list" {
+		t.Fatalf("sandbox_templating_list: got parent=%p name=%q, want sandbox cmd with name=templating_list", parent, name)
+	}
+
+	// Fallback: "unknown_sub_deep" with no matching parent → root, full name.
+	// Also verifies that a warning is emitted for underscore-containing names
+	// that find no parent, surfacing likely misregistrations.
+	var logBuf bytes.Buffer
+	origOutput := log.Writer()
+	origFlags := log.Flags()
+	log.SetOutput(&logBuf)
+	log.SetFlags(0)
 	parent, name = parentAndCmdName(root, cmds, "unknown_sub_deep")
+	log.SetOutput(origOutput)
+	log.SetFlags(origFlags)
 	if parent != &root.Command || name != "unknown_sub_deep" {
 		t.Fatalf("unknown_sub_deep: got parent=%p name=%q, want root with full name", parent, name)
+	}
+	if !strings.Contains(logBuf.String(), `"unknown_sub_deep"`) {
+		t.Fatalf("unknown_sub_deep: expected warning log, got %q", logBuf.String())
+	}
+
+	// Top-level with no underscore must not emit a warning.
+	logBuf.Reset()
+	log.SetOutput(&logBuf)
+	log.SetFlags(0)
+	parentAndCmdName(root, cmds, "version")
+	log.SetOutput(origOutput)
+	log.SetFlags(origFlags)
+	if logBuf.Len() != 0 {
+		t.Fatalf("version: expected no warning log, got %q", logBuf.String())
 	}
 }
