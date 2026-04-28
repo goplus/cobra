@@ -117,3 +117,57 @@ run => {
 	echo "subcommand: mod init"
 }
 ```
+
+## Nested subcommands
+
+Subcommands can be nested to arbitrary depth. The file name convention uses underscores to separate levels. The framework resolves the parent command by scanning underscore positions in the file name from right to left, trying the longest possible parent first and falling back to shorter prefixes until a registered parent is found.
+
+The example below builds a `mod tool` command group with `list` and `add` subcommands. Because `mod tool` is a two-level path, both the top-level `mod` command file (from the earlier [Subcommand](#subcommand) section) and the intermediate `mod_tool_cmd.gox` must exist — otherwise `mod_tool_list_cmd.gox` would fall back to the next longest matching parent (e.g. to `mod` as a root command named `tool_list`), or to a root-level command named `mod_tool_list` if no parent matches.
+
+Ensure `mod_cmd.gox` from the previous section already exists:
+
+```go
+run => {
+	help
+}
+```
+
+Create `mod_tool_cmd.gox`:
+
+```go
+short "manage module tools"
+
+run => {
+	help
+}
+```
+
+Create `mod_tool_list_cmd.gox`:
+
+```go
+short "list installed tools"
+
+run => {
+	echo "listing installed tools..."
+}
+```
+
+Create `mod_tool_add_cmd.gox`:
+
+```go
+use "add <tool>"
+
+short "add a tool dependency"
+
+run args => {
+	echo "adding tool:", args
+}
+```
+
+This produces the following command tree:
+
+```
+hellocli mod tool          # manage module tools
+hellocli mod tool list     # list installed tools
+hellocli mod tool add      # add a tool dependency
+```
