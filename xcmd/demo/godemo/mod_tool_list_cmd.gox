@@ -1,5 +1,0 @@
-short "list installed tools"
-
-run => {
-	echo "listing installed tools..."
-}
