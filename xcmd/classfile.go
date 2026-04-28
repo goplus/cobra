@@ -135,36 +135,19 @@ func XGot_App_Main(app iAppProto, cmds ...iCommandProto) {
 	root.Execute()
 }
 
-// parentAndCmdName resolves the parent command for a given classfile name by
-// scanning underscore positions in fname from right to left. This allows
-// nested subcommands of arbitrary depth. For example, "sandbox_template_list"
-// first tries parent "sandbox_template" (name "list"), then falls back to
-// "sandbox" (name "template_list"). If no parent matches, the command is
-// attached to root with its full classfile name preserved as the command name
-// (e.g. "unknown_sub_deep" becomes a root command named "unknown_sub_deep").
-// When fname contains underscores but no parent matches, a warning is logged
-// to surface likely misregistrations such as typos or missing parent files.
 func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
-	hasUnderscore := false
-	for i := strings.LastIndexByte(fname, '_'); i >= 0; i = strings.LastIndexByte(fname[:i], '_') {
-		hasUnderscore = true
-		parent, name := fname[:i], fname[i+1:]
-		// Skip degenerate splits (e.g. trailing underscore yields empty name,
-		// consecutive underscores yield empty parent). Continue searching at
-		// the next underscore position so a valid parent can still match.
-		if parent == "" || name == "" {
-			continue
-		}
-		for _, v := range cmds {
-			if v.Classfname() == parent {
-				return v.cobraCmd(), name
-			}
+	pos := strings.IndexByte(fname, '_')
+	if pos < 0 {
+		return &root.Command, fname
+	}
+	subcmd, name := fname[:pos], fname[pos+1:]
+	for _, v := range cmds {
+		if v.Classfname() == subcmd {
+			return v.cobraCmd(), name
 		}
 	}
-	if hasUnderscore {
-		log.Printf("xcmd: command %q has no matching parent, attaching to root", fname)
-	}
-	return &root.Command, fname
+	log.Panicf("Command `%s %s`: parent command not found", subcmd, name)
+	return nil, ""
 }
 
 func handleFlags(self *cobra.Command, v reflect.Value) {

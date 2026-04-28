@@ -1,7 +1,0 @@
-use "add <tool>"
-
-short "add a tool dependency"
-
-run args => {
-	echo "adding tool:", args
-}
