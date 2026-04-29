@@ -136,7 +136,7 @@ func XGot_App_Main(app iAppProto, cmds ...iCommandProto) {
 }
 
 func parentAndCmdName(root *Command, cmds []iCommandProto, fname string) (*cobra.Command, string) {
-	pos := strings.IndexByte(fname, '_')
+	pos := strings.LastIndexByte(fname, '_')
 	if pos < 0 {
 		return &root.Command, fname
 	}
