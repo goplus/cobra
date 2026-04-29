@@ -26,6 +26,14 @@ type Cmd_mod_init struct {
 	LLGo    bool `flag:"llgo, val: true, usage: use LLGo as underlying compiler"`
 	Verbose bool `flag:"verbose, short: v, usage: print verbose information"`
 }
+type Cmd_mod_tool struct {
+	xcmd.Command
+	*App
+}
+type Cmd_mod_tool_list struct {
+	xcmd.Command
+	*App
+}
 type Cmd_version struct {
 	xcmd.Command
 	*App
@@ -40,8 +48,10 @@ func (this *App) Main() {
 	_xgo_obj0 := &Cmd_backward{App: this}
 	_xgo_obj1 := &Cmd_mod{App: this}
 	_xgo_obj2 := &Cmd_mod_init{App: this}
-	_xgo_obj3 := &Cmd_version{App: this}
-	xcmd.XGot_App_Main(this, _xgo_obj0, _xgo_obj1, _xgo_obj2, _xgo_obj3)
+	_xgo_obj3 := &Cmd_mod_tool{App: this}
+	_xgo_obj4 := &Cmd_mod_tool_list{App: this}
+	_xgo_obj5 := &Cmd_version{App: this}
+	xcmd.XGot_App_Main(this, _xgo_obj0, _xgo_obj1, _xgo_obj2, _xgo_obj3, _xgo_obj4, _xgo_obj5)
 }
 //line xcmd/demo/godemo/backward_cmd.gox:1
 func (this *Cmd_backward) Main(_xgo_arg0 string) {
@@ -107,6 +117,30 @@ See https://golang.org/ref/mod#go-mod-init for more about 'go mod init'.
 }
 func (this *Cmd_mod_init) Classfname() string {
 	return "mod_init"
+}
+//line xcmd/demo/godemo/mod_tool_cmd.gox:1
+func (this *Cmd_mod_tool) Main(_xgo_arg0 string) {
+	this.Command.Main(_xgo_arg0)
+//line xcmd/demo/godemo/mod_tool_cmd.gox:1:1
+	this.Run__0(func() {
+//line xcmd/demo/godemo/mod_tool_cmd.gox:2:1
+		this.Help()
+	})
+}
+func (this *Cmd_mod_tool) Classfname() string {
+	return "mod_tool"
+}
+//line xcmd/demo/godemo/mod_tool_list_cmd.gox:1
+func (this *Cmd_mod_tool_list) Main(_xgo_arg0 string) {
+	this.Command.Main(_xgo_arg0)
+//line xcmd/demo/godemo/mod_tool_list_cmd.gox:1:1
+	this.Run__0(func() {
+//line xcmd/demo/godemo/mod_tool_list_cmd.gox:2:1
+		fmt.Println("list tools ...")
+	})
+}
+func (this *Cmd_mod_tool_list) Classfname() string {
+	return "mod_tool_list"
 }
 //line xcmd/demo/godemo/version_cmd.gox:5
 func (this *Cmd_version) Main(_xgo_arg0 string) {
