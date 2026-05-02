@@ -74,7 +74,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
+	"github.com/goplus/cobra"
 	"github.com/spf13/viper"
 )
 
@@ -167,7 +167,7 @@ package cmd
 import (
   "fmt"
 
-  "github.com/spf13/cobra"
+  "github.com/goplus/cobra"
 )
 
 func init() {
@@ -225,7 +225,7 @@ package cmd
 import (
   "fmt"
 
-  "github.com/spf13/cobra"
+  "github.com/goplus/cobra"
 )
 
 func init() {
@@ -498,7 +498,7 @@ by not providing a 'Run' for the 'rootCmd'.
 
 We have only defined one flag for a single command.
 
-More documentation about flags is available at https://github.com/spf13/pflag.
+More documentation about flags is available at https://pkg.go.dev/github.com/goplus/cobra/pflag.
 
 ```go
 package main
@@ -507,7 +507,7 @@ import (
   "fmt"
   "strings"
 
-  "github.com/spf13/cobra"
+  "github.com/goplus/cobra"
 )
 
 func main() {
@@ -703,7 +703,7 @@ package main
 import (
   "fmt"
 
-  "github.com/spf13/cobra"
+  "github.com/goplus/cobra"
 )
 
 func main() {
@@ -847,7 +847,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
+	"github.com/goplus/cobra"
 )
 
 func main() {

@@ -27,7 +27,7 @@ import (
 	"sort"
 	"strings"
 
-	flag "github.com/spf13/pflag"
+	flag "github.com/goplus/cobra/pflag"
 )
 
 const (
@@ -39,7 +39,7 @@ const (
 )
 
 // FParseErrWhitelist configures Flag parse errors to be ignored
-type FParseErrWhitelist flag.ParseErrorsAllowlist
+type FParseErrWhitelist flag.ParseErrorsWhitelist
 
 // Group Structure to manage groups for commands
 type Group struct {
@@ -1877,7 +1877,7 @@ func (c *Command) ParseFlags(args []string) error {
 	c.mergePersistentFlags()
 
 	// do it here after merging all flags and just before parse
-	c.Flags().ParseErrorsAllowlist = flag.ParseErrorsAllowlist(c.FParseErrWhitelist)
+	c.Flags().ParseErrorsWhitelist = flag.ParseErrorsWhitelist(c.FParseErrWhitelist)
 
 	err := c.Flags().Parse(args)
 	// Print warnings if they occurred (e.g. deprecated flag messages).
