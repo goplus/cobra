@@ -22,8 +22,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
+	"github.com/goplus/cobra"
+	"github.com/goplus/cobra/pflag"
 	"go.yaml.in/yaml/v3"
 )
 

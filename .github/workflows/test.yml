@@ -28,6 +28,8 @@ jobs:
           -y '2013-2023'
           -l apache
           -ignore '.github/**'
+          -ignore 'mousetrap/**'
+          -ignore 'pflag/**'
           -check
           .
 
@@ -61,7 +63,6 @@ jobs:
         - ubuntu
         - macOS
         go:
-        - 17
         - 18
         - 19
         - 20

@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/cobra"
+	"github.com/goplus/cobra"
 )
 
 func TestGenMdDoc(t *testing.T) {

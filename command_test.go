@@ -24,7 +24,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/pflag"
+	"github.com/goplus/cobra/pflag"
 )
 
 func emptyRun(*Command, []string) {}
