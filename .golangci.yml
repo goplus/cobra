@@ -16,6 +16,9 @@ version: "2"
 
 run:
   timeout: 5m
+  skip-dirs:
+    - xcmd
+    - pflag
 
 formatters:
   enable:
@@ -64,8 +67,3 @@ linters:
       # This can be removed once Cobra requires Go 1.17 or higher.
       disable:
         - buildtag
-
-issues:
-  exclude-dirs:
-    - xcmd
-    - pflag
