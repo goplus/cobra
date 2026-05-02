@@ -115,6 +115,13 @@ type CompletionOptions struct {
 	DisableDescriptions bool
 	// HiddenDefaultCmd makes the default 'completion' command hidden
 	HiddenDefaultCmd bool
+	// DefaultShellCompDirective sets the ShellCompDirective that is returned
+	// if no special directive can be determined
+	DefaultShellCompDirective *ShellCompDirective
+}
+
+func (receiver *CompletionOptions) SetDefaultShellCompDirective(directive ShellCompDirective) {
+	receiver.DefaultShellCompDirective = &directive
 }
 
 // Completion is a string that can be used for completions
@@ -310,7 +317,10 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
 	// The last argument, which is not completely typed by the user,
 	// should not be part of the list of arguments
 	toComplete := args[len(args)-1]
-	trimmedArgs := args[:len(args)-1]
+	// Copy trimmedArgs to a new slice to avoid mutating the caller's
+	// backing array (which may be os.Args) when later appending "--".
+	trimmedArgs := make([]string, len(args)-1)
+	copy(trimmedArgs, args[:len(args)-1])
 
 	var finalCmd *Command
 	var finalArgs []string
@@ -375,7 +385,7 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
 	// Error while attempting to parse flags
 	if flagErr != nil {
 		// If error type is flagCompError and we don't want flagCompletion we should ignore the error
-		if _, ok := flagErr.(*flagCompError); !(ok && !flagCompletion) {
+		if _, ok := flagErr.(*flagCompError); !ok || flagCompletion {
 			return finalCmd, []Completion{}, ShellCompDirectiveDefault, flagErr
 		}
 	}
@@ -480,6 +490,14 @@ func (c *Command) getCompletions(args []string) (*Command, []Completion, ShellCo
 		}
 	} else {
 		directive = ShellCompDirectiveDefault
+		// check current and parent commands for a custom DefaultShellCompDirective
+		for cmd := finalCmd; cmd != nil; cmd = cmd.parent {
+			if cmd.CompletionOptions.DefaultShellCompDirective != nil {
+				directive = *cmd.CompletionOptions.DefaultShellCompDirective
+				break
+			}
+		}
+
 		if flag == nil {
 			foundLocalNonPersistentFlag := false
 			// If TraverseChildren is true on the root command we don't check for
@@ -773,7 +791,7 @@ See each sub-command's help for details on how to use the generated script.
 		// shell completion for it (prog __complete completion '')
 		subCmd, cmdArgs, err := c.Find(args)
 		if err != nil || subCmd.Name() != compCmdName &&
-			!(subCmd.Name() == ShellCompRequestCmd && len(cmdArgs) > 1 && cmdArgs[0] == compCmdName) {
+			(subCmd.Name() != ShellCompRequestCmd || len(cmdArgs) <= 1 || cmdArgs[0] != compCmdName) {
 			// The completion command is not being called or being completed so we remove it.
 			c.RemoveCommand(completionCmd)
 			return
@@ -940,6 +958,7 @@ func CompDebug(msg string, printToStdErr bool) {
 	// Such logs are only printed when the user has set the environment
 	// variable BASH_COMP_DEBUG_FILE to the path of some file to be used.
 	if path := os.Getenv("BASH_COMP_DEBUG_FILE"); path != "" {
+		//nolint:gosec // G703:BASH_COMP_DEBUG_FILE intentionally user-controlled for completion debug logging.
 		f, err := os.OpenFile(path,
 			os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err == nil {

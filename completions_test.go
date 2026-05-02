@@ -1297,7 +1297,7 @@ func TestValidArgsFuncCmdContext(t *testing.T) {
 	}
 	rootCmd.AddCommand(childCmd)
 
-	//nolint:golint,staticcheck // We can safely use a basic type as key in tests.
+	//nolint:staticcheck // We can safely use a basic type as key in tests.
 	ctx := context.WithValue(context.Background(), "testKey", "123")
 
 	// Test completing an empty string on the childCmd
@@ -2899,7 +2899,7 @@ func TestCompletionFuncCompatibility(t *testing.T) {
 			var userComp func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective)
 
 			// check against new signature
-			var _ CompletionFunc = userComp
+			var _ CompletionFunc = userComp //nolint:staticcheck // LHS type is needed for this use case
 
 			// check Command accepts
 			cmd := Command{
@@ -2913,8 +2913,7 @@ func TestCompletionFuncCompatibility(t *testing.T) {
 			var userComp func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective)
 
 			// check against new signature
-			var _ CompletionFunc = userComp
-
+			var _ CompletionFunc = userComp //nolint:staticcheck // LHS type is needed for this use case
 			// check Command accepts
 			cmd := Command{
 				ValidArgsFunction: userComp,
@@ -2927,8 +2926,8 @@ func TestCompletionFuncCompatibility(t *testing.T) {
 			var userComp CompletionFunc
 
 			// check helper against old signature
-			var _ func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) = userComp
-			var _ func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective) = userComp
+			var _ func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) = userComp     //nolint:staticcheck // LHS type is needed for this use case
+			var _ func(cmd *Command, args []string, toComplete string) ([]Completion, ShellCompDirective) = userComp //nolint:staticcheck // LHS type is needed for this use case
 
 			// check Command accepts
 			cmd := Command{
@@ -2967,7 +2966,7 @@ func TestCompletionFuncCompatibility(t *testing.T) {
 			var userComp UserCompletionTypeAliasHelper
 
 			// Here we are validating the existing type validates the CompletionFunc type
-			var _ CompletionFunc = userComp
+			var _ CompletionFunc = userComp //nolint:staticcheck // LHS type is needed for this use case
 
 			cmd := Command{
 				ValidArgsFunction: userComp,
@@ -4014,5 +4013,117 @@ func TestInitDefaultCompletionCmd(t *testing.T) {
 				t.Errorf("Expected %d subcommands, got %d", expectedNumSubCommands, len(rootCmd.Commands()))
 			}
 		})
+	}
+}
+
+func TestCustomDefaultShellCompDirective(t *testing.T) {
+	rootCmd := &Command{Use: "root", Run: emptyRun}
+	rootCmd.PersistentFlags().String("string", "", "test string flag")
+	// use ShellCompDirectiveNoFileComp instead of the default, which is ShellCompDirectiveDefault.
+	rootCmd.CompletionOptions.SetDefaultShellCompDirective(ShellCompDirectiveNoFileComp)
+
+	// child1 inherits the custom DefaultShellCompDirective.
+	childCmd1 := &Command{Use: "child1", Run: emptyRun}
+	// child2 resets the custom DefaultShellCompDirective to the default value.
+	childCmd2 := &Command{Use: "child2", Run: emptyRun}
+	childCmd2.CompletionOptions.SetDefaultShellCompDirective(ShellCompDirectiveDefault)
+
+	rootCmd.AddCommand(childCmd1, childCmd2)
+
+	testCases := []struct {
+		desc              string
+		args              []string
+		expectedDirective string
+	}{
+		{
+			"flag completion on root command with custom DefaultShellCompDirective",
+			[]string{"--string", ""},
+			"ShellCompDirectiveNoFileComp",
+		},
+		{
+			"flag completion on subcommand with inherited custom DefaultShellCompDirective",
+			[]string{"child1", "--string", ""},
+			"ShellCompDirectiveNoFileComp",
+		},
+		{
+			"flag completion on subcommand with reset DefaultShellCompDirective",
+			[]string{"child2", "--string", ""},
+			"ShellCompDirectiveDefault",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			args := []string{ShellCompNoDescRequestCmd}
+			args = append(args, tc.args...)
+
+			output, err := executeCommand(rootCmd, args...)
+
+			if err != nil {
+				t.Errorf("Unexpected error: %v", err)
+			}
+
+			outputWords := strings.Split(strings.TrimSpace(output), " ")
+			directive := outputWords[len(outputWords)-1]
+
+			if directive != tc.expectedDirective {
+				t.Errorf("expected: %q, got: %q", tc.expectedDirective, directive)
+			}
+		})
+	}
+}
+
+func TestCompletionDoesNotMutateOsArgs(t *testing.T) {
+	// Test for https://github.com/spf13/cobra/issues/2257
+	// Verify that os.Args is not corrupted when shell completion runs
+	// with TraverseChildren enabled.
+	//
+	// The bug: getCompletions() calls append(finalArgs, "--") where
+	// finalArgs is a sub-slice of the original args (from os.Args[1:]).
+	// If there's spare capacity, append writes "--" into the shared
+	// backing array, mutating os.Args in place.
+
+	// Save and restore os.Args since we need to override it.
+	origArgs := os.Args
+	defer func() { os.Args = origArgs }()
+
+	// Set os.Args to simulate: root __completeNoDesc x
+	// We do NOT use SetArgs so the code falls through to os.Args[1:].
+	// The program name must not be "cobra.test" to bypass the test guard
+	// in ExecuteC().
+	os.Args = []string{"root", ShellCompNoDescRequestCmd, "x"}
+
+	rootCmd := &Command{
+		Use:              "root",
+		TraverseChildren: true,
+		ValidArgsFunction: func(cmd *Command, args []string, toComplete string) ([]string, ShellCompDirective) {
+			return []string{"mycompletion"}, ShellCompDirectiveDefault
+		},
+		Run: emptyRun,
+	}
+
+	buf := new(bytes.Buffer)
+	rootCmd.SetOut(buf)
+	rootCmd.SetErr(buf)
+
+	_, err := rootCmd.ExecuteC()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+
+	// Without the fix, os.Args[2] would be changed from "x" to "--"
+	// because append(finalArgs, "--") in getCompletions wrote into
+	// the shared backing array of os.Args.
+	if len(os.Args) != 3 {
+		t.Fatalf("os.Args length changed: expected 3, got %d", len(os.Args))
+	}
+	if os.Args[0] != "root" {
+		t.Errorf("os.Args[0] was mutated: expected %q, got %q", "root", os.Args[0])
+	}
+	if os.Args[1] != ShellCompNoDescRequestCmd {
+		t.Errorf("os.Args[1] was mutated: expected %q, got %q", ShellCompNoDescRequestCmd, os.Args[1])
+	}
+	if os.Args[2] != "x" {
+		t.Errorf("os.Args[2] was mutated: expected %q, got %q", "x", os.Args[2])
 	}
 }
